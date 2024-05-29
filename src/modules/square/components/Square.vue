@@ -1,24 +1,19 @@
 <template>
   <div class="square" :class="squareClass">
-    <ChessPiece v-if="piece" :piece="piece" />
+    <slot name="piece" :piece="props.piece"></slot>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import ChessPiece from './ChessPiece.vue';
+import { IPiecePosition } from '../../../types/piecePosition';
 
-interface Props {
-  piece: string | null;
-  row: number;
-  col: number;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<IPiecePosition>();
 
 const squareClass = computed(() => {
-  return (props.row + props.col) % 2 === 0 ? 'light' : 'dark';
+  return (props.position.row + props.position.col) % 2 === 0 ? 'light' : 'dark';
 });
+console.log(props)
 </script>
 
 <style scoped>

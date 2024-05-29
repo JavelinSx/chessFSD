@@ -1,18 +1,13 @@
-import { CellPosition } from '../helpers/moveValidation';
+import { IPiece } from '../../types/Piece';
+import { IValidPieceMove } from '../../types/ValidPieceMove';
 
-export function isValidTowerMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
+export function isValidTowerMove({piece, from, to, board}: IValidPieceMove): boolean {
 
-  const isWhite = piece.toUpperCase() === piece;
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece: string | null = board[toRow][toCol];
+  const targetCell: IPiece | null = board[toRow][toCol];
 
-  const isDamageToAllies = targetPiece !== null && isWhite !== (targetPiece.toUpperCase() === targetPiece) //проверка на не пустую клетку и проверка на несоюзную фигуру
+  const isDamageToAllies = targetCell !== null && targetCell.color !== piece.color //проверка на не пустую клетку и проверка на несоюзную фигуру
 
   const isValidMove = (
     (fromCol !== toCol) ||
@@ -40,7 +35,7 @@ export function isValidTowerMove(
     return true;
   };
 
-  const isTargetValid = targetPiece === null || isDamageToAllies;
+  const isTargetValid = targetCell === null || isDamageToAllies;
 
   return isValidMove && isTargetValid && isPathEmpty();
 }

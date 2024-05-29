@@ -1,19 +1,14 @@
-import { CellPosition } from '../helpers/moveValidation';
+import { IPiece } from '../../types/Piece';
+import { IValidPieceMove } from '../../types/ValidPieceMove';
 
 // Проверка хода для пешки
-export function isValidPawnMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
-  const isWhite = piece.toUpperCase() === piece;
+export function isValidPawnMove({piece, from, to, board}: IValidPieceMove): boolean {
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece: string | null = board[toRow][toCol];
+  const targetCell: IPiece | null = board[toRow][toCol];
 
   const isValidMove = (): boolean => {
-    if (isWhite) {
+    if (piece.color==='white') {
       return (
         (toRow === fromRow - 1 && fromCol === toCol) || // обычный ход пешки
         (fromRow === 6 && toRow === 4 && fromCol === toCol) || // начальный ход пешки на 2 клетки
@@ -30,7 +25,7 @@ export function isValidPawnMove(
 
   const isPathEmpty = (): boolean => {
     if (fromCol === toCol) {
-      if (isWhite) {
+      if (piece.color==='white') {
         if (fromRow === 6 && toRow === 4) {
           return board[5][toCol] === null && board[4][toCol] === null;
         }
@@ -43,7 +38,7 @@ export function isValidPawnMove(
       }
     }
     if (Math.abs(fromCol - toCol) === 1) {
-      return targetPiece !== null && targetPiece.toUpperCase() !== piece.toUpperCase();
+      return targetCell !== null && targetCell.color !== piece.color;
     }
     return false;
   };

@@ -1,18 +1,13 @@
-import { CellPosition } from '../helpers/moveValidation';
+import { IPiece } from "../../types/Piece";
+import { IValidPieceMove } from "../../types/ValidPieceMove";
 
-export function isValidHorseMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
+export function isValidHorseMove({ piece, from, to, board }: IValidPieceMove): boolean {
 
-  const isWhite = piece.toUpperCase() === piece;
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece = board[toRow][toCol];
+  const targetCell: IPiece | null = board[toRow][toCol];
 
-  const isDamageToAllies = targetPiece !== null && isWhite !== (targetPiece.toUpperCase() === targetPiece) //проверка на не пустую клетку и проверка на несоюзную фигуру
+  const isDamageToAllies = targetCell !== null && targetCell.color !== piece.color //проверка на не пустую клетку и проверка на несоюзную фигуру
 
   const isValidMove = (
     (toRow === fromRow + 2 && toCol === fromCol + 1) || // Ход коня вверх вправо
@@ -28,7 +23,7 @@ export function isValidHorseMove(
     (toRow === fromRow - 2 && toCol === fromCol - 1)    // Ход коня вниз влево
   );
 
-  const isTargetValid = targetPiece === null || isDamageToAllies;
+  const isTargetValid = targetCell === null || isDamageToAllies;
 
   return isValidMove && isTargetValid;
 }

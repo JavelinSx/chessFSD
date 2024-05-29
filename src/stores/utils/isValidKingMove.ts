@@ -1,15 +1,12 @@
-import { CellPosition } from '../helpers/moveValidation';
 
-export function isValidKingMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
-  const isWhite = piece.toUpperCase() === piece;
+import { IPiece } from '../../types/Piece';
+import { IValidPieceMove } from '../../types/ValidPieceMove';
+
+export function isValidKingMove({ piece, from, to, board }: IValidPieceMove): boolean {
+
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece: string | null = board[toRow][toCol];
+  const targetCell: IPiece | null = board[toRow][toCol];
 
   // Проверка на допустимость хода (движение на одну клетку в любом направлении)
   const isValidMove = (
@@ -18,7 +15,7 @@ export function isValidKingMove(
   );
 
   // Проверка на попадание по своим фигурам
-  const isTargetValid = targetPiece === null || isWhite !== (targetPiece.toUpperCase() === targetPiece);
+  const isTargetValid = targetCell === null || targetCell.color !== piece.color;
 
   return isValidMove && isTargetValid;
 }

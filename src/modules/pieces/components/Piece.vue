@@ -5,19 +5,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { icons } from '../constant/iconsPiece';
+import { IPiece } from '../../../types/Piece';
 
-interface Props {
-  piece: string;
-}
-
-const props = defineProps<Props>();
+const props = defineProps<IPiece>();
 
 const pieceClass = computed(() => {
-  return props.piece.toUpperCase() === props.piece ? 'white-piece' : 'black-piece';
+  return props.color === 'white' ? 'white-piece' : 'black-piece';
 });
 
 const pieceIcon = computed(() => {
-  return icons[props.piece] || '';
+  return icons[props.type] || '';
 });
 </script>
 

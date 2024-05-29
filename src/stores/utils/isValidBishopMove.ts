@@ -1,18 +1,9 @@
-import { CellPosition } from '../helpers/moveValidation';
-
-export function isValidBishopMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
-
-  const isWhite = piece.toUpperCase() === piece;
+import { IValidPieceMove } from '../../types/ValidPieceMove'
+import { IPiece } from '../../types/Piece';
+export function isValidBishopMove({ piece, from, to, board }: IValidPieceMove): boolean {
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece: string | null = board[toRow][toCol];
-
-  const isDamageToAllies = targetPiece !== null && isWhite === (targetPiece.toUpperCase() === targetPiece);
+  const targetCell: IPiece | null = board[toRow][toCol];
 
   const isValidMove = (
     Math.abs(fromRow - toRow) === Math.abs(fromCol - toCol) // Слон может двигаться только по диагоналям
@@ -34,7 +25,8 @@ export function isValidBishopMove(
     return true;
   };
 
-  const isTargetValid = targetPiece === null || !isDamageToAllies;
+  const isDamageToAllies = targetCell !== null && piece.color !== targetCell.color;
+  const isTargetValid = targetCell === null || !isDamageToAllies;
 
   return isValidMove && isPathEmpty() && isTargetValid;
 }

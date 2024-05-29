@@ -1,17 +1,12 @@
-import { CellPosition } from '../helpers/moveValidation';
+import { IValidPieceMove } from '../../types/ValidPieceMove';
+import { IPiece } from '../../types/Piece';
+export function isValidQueenMove({piece, from, to, board}: IValidPieceMove): boolean {
 
-export function isValidQueenMove(
-  piece: string,
-  from: CellPosition,
-  to: CellPosition,
-  board: (string | null)[][]
-): boolean {
-  const isWhite = piece.toUpperCase() === piece;
   const { row: fromRow, col: fromCol } = from;
   const { row: toRow, col: toCol } = to;
-  const targetPiece: string | null = board[toRow][toCol];
+  const targetCell: IPiece | null = board[toRow][toCol];
 
-  const isDamageToAllies = targetPiece !== null && isWhite === (targetPiece.toUpperCase() === targetPiece);
+  const isDamageToAllies = targetCell !== null && targetCell.color !== piece.color;
 
   const isValidMove = (
     (fromCol === toCol || fromRow === toRow) || // Движение по прямой линии (как ладья)
@@ -53,7 +48,7 @@ export function isValidQueenMove(
     return true;
   };
 
-  const isTargetValid = targetPiece === null || !isDamageToAllies;
+  const isTargetValid = targetCell === null || !isDamageToAllies;
 
   return isValidMove && isPathEmpty() && isTargetValid;
 }

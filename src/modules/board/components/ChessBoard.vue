@@ -2,35 +2,39 @@
   <v-container class="chess-board-container">
     <v-row v-for="(row, rowIndex) in board" :key="rowIndex" class="no-gutters">
       <v-col v-for="(piece, colIndex) in row" :key="colIndex" class="no-gutters">
-        <Square :piece="piece" :row="rowIndex" :col="colIndex" @click="onSquareClick(rowIndex, colIndex, $event)"></Square>
+        <slot name="square" :piece="piece" :row="rowIndex" :col="colIndex">
+          <div @click="handleSquareClick(rowIndex, colIndex, $event)">
+            <!-- Default slot content here if needed -->
+          </div>
+        </slot>
       </v-col>
     </v-row>
-    <div v-if="selectedPiece" class="piece-icon" :style="iconStyle">
-      <ChessPiece :piece="selectedPiece.piece"></ChessPiece>
-    </div>
+    <slot v-if="selectedPiece" name="selectedPiece" :piece="selectedPiece.piece"></slot>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useBoardStore } from '../store/boardStore';
-import Square from './Square.vue';
-import ChessPiece from './ChessPiece.vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useRootStore } from '../../../stores/useRootStore';
+import { ICellPosition } from '../../../types/CellPosition';
+import { isMoveValidAndEmptyRoute } from '../../../stores/helpers/moveValidation';
 
-const boardStore = useBoardStore();
-const board = computed(() => boardStore.getBoard);
-const selectedPiece = computed(() => boardStore.getSelectedPiece);
+const rootStore = useRootStore();
+const board = computed(() => rootStore.boardStore.getBoard);
+const selectedPiece = computed(() => rootStore.boardStore.getSelectedPiece);
 
 const ignoreNextClick = ref(false);
 
-const onSquareClick = (row: number, col: number, event: MouseEvent) => {
+const handleSquareClick = (row: number, col: number, event: MouseEvent) => {
   if (selectedPiece.value) {
-    boardStore.movePiece(selectedPiece.value.position, { row, col });
+    const from: ICellPosition = selectedPiece.value.position;
+    const to: ICellPosition = { row, col };
+    rootStore.movePiece(from, to, isMoveValidAndEmptyRoute);
     ignoreNextClick.value = true;
   } else {
     const piece = board.value[row][col];
     if (piece) {
-      boardStore.selectPiece(piece, { row, col });
+      rootStore.selectPiece(piece.type, { row, col });
       setPieceIconPosition(event);
       ignoreNextClick.value = true;
     }
@@ -40,13 +44,13 @@ const onSquareClick = (row: number, col: number, event: MouseEvent) => {
 const setPieceIconPosition = (event: MouseEvent) => {
   const pieceIcon = document.querySelector('.piece-icon') as HTMLElement;
   if (pieceIcon) {
-    pieceIcon.style.left = `${event.pageX+10}px`;
-    pieceIcon.style.top = `${event.pageY+10}px`;
+    pieceIcon.style.left = `${event.pageX + 10}px`;
+    pieceIcon.style.top = `${event.pageY + 10}px`;
   }
 };
 
 const onDocumentClick = (event: MouseEvent) => {
-  setPieceIconPosition(event)
+  setPieceIconPosition(event);
   if (ignoreNextClick.value) {
     ignoreNextClick.value = false;
     return;
@@ -54,7 +58,7 @@ const onDocumentClick = (event: MouseEvent) => {
   if (!selectedPiece.value) return;
   const target = event.target as Element;
   if (!target.closest('.chess-board-container') && !target.closest('.piece-icon')) {
-    boardStore.cancelSelection();
+    rootStore.cancelSelection();
   }
 };
 
@@ -73,27 +77,17 @@ onUnmounted(() => {
   document.removeEventListener('click', onDocumentClick);
   document.removeEventListener('mousemove', onMouseMove);
 });
-
-const iconStyle = computed(() => {
-  return {
-    position: 'absolute',
-    pointerEvents: 'none',
-  };
-});
 </script>
 
 <style scoped>
 .chess-board-container {
   display: flex;
+  height: 100%;
   flex-direction: column;
   align-items: center;
 }
 .no-gutters {
   padding: 0;
   margin: 0;
-}
-.piece-icon {
-  position: absolute;
-  pointer-events: none;
 }
 </style>
